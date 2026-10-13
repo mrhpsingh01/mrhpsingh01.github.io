@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens.
+ * Light theme only.
+ * Playful pastel system with chunky ink outlines, hard offset shadows, and pastel fills.
+ */
+:root {
+  --bg: #fffaf3;
+  --surface: #ffffff;
+  --surface-sunken: #fdf1e1;
+  --fg: #241b3a;
+  --muted: #574d72;
+  --accent: #5233e0;
+  --accent-strong: #3f23b8;
+  --accent-fg: #ffffff;
+  --accent-tint: #e2d9ff;
+  --border: #e0d6ea;
+  --border-strong: #241b3a;
+  --p1: #ffd9c7;
+  --p2: #d3f2e3;
+  --p3: #e2d9ff;
+  --p4: #fff1b8;
+  --p5: #cfe8ff;
+  --outline: #241b3a;
+  --shadow-ink: #241b3a;
+  --chunk-w: 2.5px;
+  --chunk-shadow: 5px 5px 0 var(--shadow-ink);
+  --chunk-shadow-hover: 8px 8px 0 var(--accent);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-card: 1.5rem;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunken: var(--surface-sunken);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-fg: var(--accent-fg);
+  --color-tint: var(--accent-tint);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-p1: var(--p1);
+  --color-p2: var(--p2);
+  --color-p3: var(--p3);
+  --color-p4: var(--p4);
+  --color-p5: var(--p5);
+  --color-ink: var(--outline);
+  --font-sans: "Poppins", var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius-card);
+  --radius-md: var(--radius);
+  --radius-sm: var(--radius-sm);
+}
+
+html {
+  scroll-padding-top: 5rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.65;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+.container-page {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+@media (min-width: 640px) {
+  .container-page {
+    padding-inline: 2rem;
+  }
+}
+
+/* Pill buttons with a small hard shadow that presses in on click */
+.btn-chunk {
+  box-shadow: 3px 3px 0 var(--shadow-ink);
+}
+.btn-chunk:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--shadow-ink);
+}
+.btn-chunk:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--shadow-ink);
+}
+
+.pill-nav {
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
