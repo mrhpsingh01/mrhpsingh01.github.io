@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { HandwrittenArrow } from "@/components/landing/handwritten-note";
 
 interface SparkParticle {
   x: number;
@@ -22,7 +23,10 @@ interface ThunderboltBeam {
 
 export function PikachuPet() {
   const [mounted, setMounted] = useState(false);
+  const [isParked, setIsParked] = useState(true);
+  const isParkedRef = useRef(true);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const wakeUpRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -34,6 +38,9 @@ export function PikachuPet() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
+
+    // Start parked in top-left corner
+    isParkedRef.current = true;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -49,17 +56,23 @@ export function PikachuPet() {
     resize();
     window.addEventListener("resize", resize);
 
-    // Pikachu Physics & State
-    let pikaX = 60;
-    let pikaY = 80;
-    let targetX = pikaX;
-    let targetY = pikaY;
+    // Pikachu Physics & State: Starts parked in top-left corner below navbar (navbar is h-16 = 64px)
+    const PARK_X = 52;
+    const PARK_Y = 112;
+
+    let pikaX = PARK_X;
+    let pikaY = PARK_Y;
+    let targetX = PARK_X;
+    let targetY = PARK_Y;
+    let currentMouseX = PARK_X;
+    let currentMouseY = PARK_Y;
     let vx = 0;
     let vy = 0;
     let facingLeft = false;
     let stepCount = 0;
     let idleCounter = 0;
-    let isSleeping = false;
+    let isSleeping = true;
+    let isHovering = false;
     let attackCooldown = 0;
     let isAttacking = false;
     let attackDuration = 0;
@@ -67,9 +80,76 @@ export function PikachuPet() {
     const particles: SparkParticle[] = [];
     let activeBolts: ThunderboltBeam[] = [];
 
+    function playPikaSound(wake: boolean) {
+      try {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (!AudioCtx) return;
+        const audioCtx = new AudioCtx();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        if (wake) {
+          osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+        } else {
+          osc.frequency.setValueAtTime(660, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(380, audioCtx.currentTime + 0.1);
+        }
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      } catch {}
+    }
+
+    const togglePark = () => {
+      const next = !isParkedRef.current;
+      isParkedRef.current = next;
+      setIsParked(next);
+
+      playPikaSound(!next);
+
+      if (next) {
+        // Park on side: burst of calm yellow sparks
+        for (let i = 0; i < 8; i++) {
+          spawnElectricSpark(pikaX, pikaY, 3);
+        }
+      } else {
+        // Wake up: immediately target current cursor position and start following!
+        isSleeping = false;
+        idleCounter = 0;
+        targetX = currentMouseX;
+        targetY = Math.max(92, currentMouseY);
+        for (let i = 0; i < 12; i++) {
+          spawnElectricSpark(pikaX, pikaY, 4.5);
+        }
+        triggerAttack();
+      }
+    };
+
+    wakeUpRef.current = () => {
+      if (isParkedRef.current) {
+        togglePark();
+      }
+    };
+
     const onMouseMove = (e: MouseEvent) => {
+      currentMouseX = e.clientX;
+      currentMouseY = Math.max(92, e.clientY);
+
+      const dist = Math.hypot(e.clientX - pikaX, e.clientY - pikaY);
+      const hovering = dist < 42;
+      if (hovering !== isHovering) {
+        isHovering = hovering;
+        document.body.style.cursor = hovering ? "pointer" : "";
+      }
+
+      if (isParkedRef.current) return;
+
       targetX = e.clientX;
-      targetY = e.clientY;
+      targetY = Math.max(92, e.clientY);
       idleCounter = 0;
       if (isSleeping) {
         isSleeping = false;
@@ -77,8 +157,22 @@ export function PikachuPet() {
     };
     window.addEventListener("mousemove", onMouseMove);
 
-    // Clicking anywhere fires an intentional long-range Thunderbolt attack!
+    // Clicking directly on Pikachu toggles parking; clicking anywhere else fires lightning
+    let lastToggleTime = 0;
     const onMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return; // left click only
+
+      const distToPika = Math.hypot(e.clientX - pikaX, e.clientY - pikaY);
+      if (distToPika < 42) {
+        const now = Date.now();
+        if (now - lastToggleTime < 300) return; // debounce
+        lastToggleTime = now;
+        togglePark();
+        return;
+      }
+
+      if (isParkedRef.current) return;
+
       targetX = e.clientX;
       targetY = e.clientY;
       idleCounter = 0;
@@ -570,9 +664,20 @@ export function PikachuPet() {
     const render = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      idleCounter += 1;
-      if (idleCounter > 650) {
-        isSleeping = true;
+      if (isParkedRef.current) {
+        targetX = PARK_X;
+        targetY = PARK_Y;
+
+        const distToPark = Math.hypot(PARK_X - pikaX, PARK_Y - pikaY);
+        if (distToPark < 14) {
+          isSleeping = true;
+          facingLeft = false;
+        }
+      } else {
+        idleCounter += 1;
+        if (idleCounter > 650) {
+          isSleeping = true;
+        }
       }
 
       const dx = targetX - pikaX;
@@ -580,15 +685,15 @@ export function PikachuPet() {
       const dist = Math.hypot(dx, dy);
 
       // Facing orientation
-      if (Math.abs(dx) > 10) {
+      if (!isParkedRef.current && Math.abs(dx) > 10) {
         facingLeft = dx < 0;
       }
 
-      // Run towards cursor with a calmer, smoother speed
-      const stopDistance = 55;
+      // Run towards target with a calmer, smoother speed
+      const stopDistance = isParkedRef.current ? 8 : 55;
       if (!isSleeping && dist > stopDistance) {
         stepCount += 0.14; // slower, cuter step animation
-        const speed = Math.min(dist * 0.035, 3.8); // max speed lowered from 9.5 to 3.8
+        const speed = Math.min(dist * 0.04, 4.2);
         vx = (dx / dist) * speed;
         vy = (dy / dist) * speed;
         pikaX += vx;
@@ -601,9 +706,11 @@ export function PikachuPet() {
         stepCount += 0.03;
       }
 
-      // Viewport safety
+      // Viewport safety (keeps pet below navbar at top)
       pikaX = Math.max(30, Math.min(canvas.width - 30, pikaX));
-      pikaY = Math.max(30, Math.min(canvas.height - 30, pikaY));
+      pikaY = Math.max(92, Math.min(canvas.height - 30, pikaY));
+
+
 
       // Only attack when user explicitly clicks (handled in onMouseDown); cooldown counts down
       if (attackCooldown > 0) {
@@ -714,9 +821,38 @@ export function PikachuPet() {
         ctx.fillStyle = "#FFD600";
         const floatY = (stepCount * 12) % 20;
         ctx.globalAlpha = Math.max(0, 1 - floatY / 20);
-        ctx.fillText("z", pikaX - 12, pikaY - 26 - floatY * 0.6);
+        const zOffset = facingLeft ? -14 : 14;
+        ctx.fillText("z", pikaX + zOffset, pikaY - 22 - floatY * 0.6);
         ctx.font = "bold 18px monospace";
-        ctx.fillText("Z", pikaX - 18, pikaY - 36 - floatY);
+        ctx.fillText("Z", pikaX + zOffset * 1.3, pikaY - 32 - floatY);
+        ctx.restore();
+      }
+
+      // Hover tooltip badge directly on canvas
+      if (isHovering) {
+        const label = isParkedRef.current ? "Click to follow ⚡" : "Click to park 💤";
+        ctx.save();
+        ctx.font = "bold 11px system-ui, -apple-system, sans-serif";
+        const tw = ctx.measureText(label).width;
+        const bx = Math.max((tw + 24) / 2 + 10, Math.min(canvas.width - (tw + 24) / 2 - 10, pikaX));
+        const by = pikaY < 125 ? pikaY + 36 : pikaY - 42;
+
+        ctx.fillStyle = "rgba(18, 18, 22, 0.94)";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.35)";
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.roundRect(bx - (tw + 20) / 2, by - 12, tw + 20, 22, 11);
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = isParkedRef.current ? "#FFEE58" : "#FFFFFF";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(label, bx, by - 1);
         ctx.restore();
       }
 
@@ -726,21 +862,56 @@ export function PikachuPet() {
     animId = requestAnimationFrame(render);
 
     return () => {
+      wakeUpRef.current = null;
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mousedown", onMouseDown);
+      document.body.style.cursor = "";
       cancelAnimationFrame(animId);
     };
   }, [mounted]);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div
+        className="fixed top-[92px] left-[84px] z-50 hidden sm:flex items-start gap-1 select-none pointer-events-none"
+        aria-hidden="true"
+      >
+        <HandwrittenArrow className="-rotate-6 size-6 sm:size-7 text-muted-foreground/80 shrink-0" />
+        <span className="font-handwritten text-base sm:text-lg text-muted-foreground leading-snug -rotate-3">
+          click for pet
+          <span className="block text-amber-600 dark:text-amber-400 font-medium text-xs sm:text-sm">
+            which follows cursor ⚡
+          </span>
+        </span>
+      </div>
+    );
+  }
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-40 select-none"
-      aria-hidden="true"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className="pointer-events-none fixed inset-0 z-40 select-none"
+        aria-hidden="true"
+      />
+
+      {isParked && (
+        <div
+          onClick={() => wakeUpRef.current?.()}
+          className="fixed top-[92px] left-[84px] z-50 hidden sm:flex items-start gap-1 cursor-pointer select-none group transition-opacity duration-300"
+          title="Click for pet which follows cursor"
+        >
+          <HandwrittenArrow className="-rotate-6 size-6 sm:size-7 text-muted-foreground/80 group-hover:text-amber-500 transition-colors shrink-0" />
+          <span className="font-handwritten text-base sm:text-lg text-muted-foreground leading-snug -rotate-3 group-hover:text-foreground transition-colors">
+            click for pet
+            <span className="block text-amber-600 dark:text-amber-400 font-medium text-xs sm:text-sm">
+              which follows cursor ⚡
+            </span>
+          </span>
+        </div>
+      )}
+    </>
   );
 }
 

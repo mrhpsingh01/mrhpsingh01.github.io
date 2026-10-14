@@ -6,7 +6,7 @@ export const profile = {
   name: "Harmanpreet Singh",
   shortName: "Harmanpreet",
   role: "Software engineer",
-  location: "Athens, Georgia",
+  location: "Atlanta, Georgia",
 
   headline: "I build full-stack software, applied ML pipelines, and backend systems.",
   intro:

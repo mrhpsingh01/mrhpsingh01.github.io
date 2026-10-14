@@ -8,6 +8,6 @@ export const petConfig = {
   mode: "pikachu" as "pikachu" | "dragon" | "puppy" | "none",
   name: "Pikachu",
   wakeText: "Wake up Pikachu",
-  spawn: { x: 60, y: 80 },
+  spawn: { x: 50, y: 50 },
   persistPosition: false,
 };

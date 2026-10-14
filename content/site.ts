@@ -15,12 +15,11 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  { label: "Work", href: "/projects" },
+  { label: "Work", href: "/work", also: ["/projects"] },
   { label: "Coursework", href: "/coursework" },
   { label: "Research", href: "/research", also: ["/thesis", "/paper"] },
   { label: "About", href: "/about" },
   { label: "Resume", href: "/resume" },
-  { label: "Lab", href: "/lab/sensor-playback" },
 ];
 
-export const staticRoutes = ["/", "/projects", "/coursework", "/research", "/about", "/resume"] as const;
+export const staticRoutes = ["/", "/work", "/projects", "/coursework", "/research", "/about", "/resume"] as const;

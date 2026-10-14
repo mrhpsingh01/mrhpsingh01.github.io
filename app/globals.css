@@ -1,16 +1,23 @@
 @import "tailwindcss";
+@source "../components";
+@source "../config";
+@source "../content";
+@source "../lib";
+@source "../app";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 /*
  * Design tokens.
- * Light theme only.
- * Playful pastel system with chunky ink outlines, hard offset shadows, and pastel fills.
+ * Hybrid theme: Playful pastel ink outlines for header, plus complete design tokens for the homepage components.
  */
 :root {
   --bg: #fffaf3;
   --surface: #ffffff;
   --surface-sunken: #fdf1e1;
   --fg: #241b3a;
-  --muted: #574d72;
+  --muted: #f4edf8;
+  --muted-foreground: #6b6088;
   --accent: #5233e0;
   --accent-strong: #3f23b8;
   --accent-fg: #ffffff;
@@ -27,9 +34,28 @@
   --chunk-w: 2.5px;
   --chunk-shadow: 5px 5px 0 var(--shadow-ink);
   --chunk-shadow-hover: 8px 8px 0 var(--accent);
-  --radius: 14px;
+  --radius: 0.75rem;
   --radius-sm: 8px;
   --radius-card: 1.5rem;
+
+  /* Landing grid and card variables */
+  --grid-cell-size: 40px;
+  --portfolio-grid-columns: 20;
+  --portfolio-content-width: min(calc(var(--grid-cell-size) * var(--portfolio-grid-columns)), 800px);
+
+  --background: #fffaf3;
+  --foreground: #241b3a;
+  --card: #ffffff;
+  --card-foreground: #241b3a;
+  --popover: #ffffff;
+  --popover-foreground: #241b3a;
+  --primary: #5233e0;
+  --primary-foreground: #ffffff;
+  --secondary: #574d72;
+  --secondary-foreground: #241b3a;
+  --input: #e0d6ea;
+  --ring: #5233e0;
+
   color-scheme: light;
 }
 
@@ -38,11 +64,23 @@
   --color-surface: var(--surface);
   --color-sunken: var(--surface-sunken);
   --color-fg: var(--fg);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-accent-fg: var(--accent-fg);
   --color-tint: var(--accent-tint);
+  --color-border: var(--border);
   --color-line: var(--border);
   --color-line-strong: var(--border-strong);
   --color-p1: var(--p1);
@@ -54,6 +92,7 @@
   --font-sans: "Poppins", var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Fraunces Variable", Georgia, "Times New Roman", serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-handwritten: var(--font-handwritten), "Caveat", "Comic Sans MS", cursive;
   --radius-lg: var(--radius);
   --radius-xl: var(--radius-card);
   --radius-md: var(--radius);
@@ -62,17 +101,66 @@
 
 html {
   scroll-padding-top: 5rem;
+  scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--bg);
-  color: var(--fg);
+  background: var(--background);
+  color: var(--foreground);
   font-family: var(--font-sans);
   font-size: 1rem;
   line-height: 1.65;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* Maintain mouse pointer across content and prevent unwanted I-beam switching */
+*, *::before, *::after {
+  cursor: default;
+}
+
+/* Ensure interactive elements have pointer cursor */
+a,
+a *,
+button,
+button *,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"],
+[role="button"],
+[role="tab"],
+summary,
+label,
+.cursor-pointer,
+.cursor-pointer * {
+  cursor: pointer;
+}
+
+/* Keep I-beam text cursor only on editable input fields */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+textarea,
+[contenteditable="true"] {
+  cursor: text;
+}
+
+/* Disabled elements */
+:disabled,
+[disabled],
+.disabled,
+.cursor-not-allowed {
+  cursor: not-allowed;
 }
 
 ::selection {
@@ -115,6 +203,198 @@ body {
   transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
 
+/* Landing Decorative Framing */
+.corner-frame {
+  position: relative;
+}
+
+.corner-frame::before,
+.corner-frame::after {
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  z-index: 21;
+  width: 28px;
+  height: 28px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 70%, transparent);
+}
+
+.corner-frame::before {
+  left: -8px;
+  top: -8px;
+  border-color:
+    color-mix(in srgb, var(--foreground) 70%, transparent) transparent transparent
+    color-mix(in srgb, var(--foreground) 70%, transparent);
+}
+
+.corner-frame::after {
+  bottom: -8px;
+  right: -8px;
+  border-color:
+    transparent color-mix(in srgb, var(--foreground) 70%, transparent)
+    color-mix(in srgb, var(--foreground) 70%, transparent) transparent;
+}
+
+@media (max-width: 639px) {
+  :root {
+    --grid-cell-size: 32px;
+    --portfolio-content-width: 100vw;
+  }
+
+  .corner-frame::before,
+  .corner-frame::after {
+    display: none;
+  }
+}
+
+/* Spotify Vinyl Animation */
+@keyframes vinyl-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-vinyl-spin {
+  animation: vinyl-spin 4s linear infinite;
+}
+
+.vinyl-disc {
+  background-color: #111;
+  background-image:
+    radial-gradient(circle at center, transparent 24%, rgba(255, 255, 255, 0.04) 25%, transparent 26%),
+    radial-gradient(circle at center, transparent 44%, rgba(255, 255, 255, 0.03) 45%, transparent 46%),
+    repeating-radial-gradient(
+      circle at center,
+      #1a1a1a 0px,
+      #1a1a1a 1.5px,
+      #0a0a0a 1.5px,
+      #0a0a0a 3px
+    );
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Spotify Mini Player */
+.music-card-row {
+  container-type: inline-size;
+  flex-wrap: wrap;
+}
+
+.music-player {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #1db954;
+  color: white;
+  transition: width 450ms cubic-bezier(0.22, 1, 0.36, 1), height 450ms ease,
+    background-color 300ms ease, border-radius 450ms ease, gap 450ms ease,
+    padding 450ms ease;
+}
+
+.music-player--playing {
+  width: clamp(180px, 38cqi, 300px);
+  height: 56px;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 16px;
+  background: #1db954;
+}
+
+.music-player-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 200ms ease, box-shadow 200ms ease;
+}
+
+.music-player-toggle:hover {
+  background: rgb(255 255 255 / 12%);
+}
+.music-player-toggle:focus-visible {
+  outline: 2px solid #1db954;
+  outline-offset: -3px;
+}
+.music-player-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+.music-player--playing .music-player-toggle {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 35%);
+}
+
+.music-player-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.music-player-waveform span {
+  width: 2px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: white;
+  animation: music-wave 900ms ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+
+.music-player-time {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: opacity 200ms ease;
+}
+
+.music-player--playing .music-player-waveform,
+.music-player--playing .music-player-time {
+  opacity: 1;
+}
+
+.music-player--playing .music-player-time {
+  max-width: 60px;
+}
+
+.music-player--playing .music-player-waveform span {
+  animation-play-state: running;
+}
+
+@container (max-width: 440px) {
+  .music-player--playing {
+    width: 100%;
+  }
+}
+
+@keyframes music-wave {
+  from {
+    transform: scaleY(0.45);
+  }
+  to {
+    transform: scaleY(1.45);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -125,3 +405,263 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Manishx Skills Marquee Animation */
+.marquee-container {
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  padding: 5px 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  user-select: none;
+  pointer-events: auto;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 7%,
+    black 93%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 7%,
+    black 93%,
+    transparent 100%
+  );
+}
+
+.marquee-container:hover .marquee {
+  animation-play-state: paused;
+}
+
+.marquee {
+  display: flex;
+  gap: 0.75rem;
+  width: max-content;
+  will-change: transform;
+}
+
+@keyframes marquee-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
+@keyframes marquee-right {
+  0% {
+    transform: translateX(-33.333%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Corner bracket card title (Manishx style) */
+.manish-card-title {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #18181b;
+  color: #f4f4f5;
+  padding: 4px 14px;
+  border-radius: 3px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 20px -6px rgba(0, 0, 0, 0.25);
+}
+
+.manish-corner {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.manish-corner.top.left {
+  top: -2px;
+  left: -2px;
+  border-top: 2px solid #dc2626;
+  border-left: 2px solid #dc2626;
+  border-radius: 2px 0 0 0;
+}
+
+.manish-corner.top.right {
+  top: -2px;
+  right: -2px;
+  border-top: 2px solid #dc2626;
+  border-right: 2px solid #dc2626;
+  border-radius: 0 2px 0 0;
+}
+
+.manish-corner.bottom.left {
+  bottom: -2px;
+  left: -2px;
+  border-bottom: 2px solid #dc2626;
+  border-left: 2px solid #dc2626;
+  border-radius: 0 0 0 2px;
+}
+
+.manish-corner.bottom.right {
+  bottom: -2px;
+  right: -2px;
+  border-bottom: 2px solid #dc2626;
+  border-right: 2px solid #dc2626;
+  border-radius: 0 0 2px 0;
+}
+
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #000000;
+}
+
+.text-subtitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #000000;
+  line-height: 1.4;
+}
+
+.link-inline {
+  color: var(--accent);
+  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+  padding-bottom: 1px;
+  transition: color 150ms ease, background-size 200ms ease;
+}
+.link-inline:hover {
+  color: var(--accent-strong);
+  background-size: 100% 2px;
+}
+
+/* ------------------------------------------------------------------ editorial
+ * The resume page wraps its content in .editorial-page. :has() lets that one page swap the
+ * whole token set (header and footer included) for a quiet paper theme: serif headings, hairline
+ * rules, square corners and no offset shadows.
+ */
+:root:has(.editorial-page) {
+  --bg: #f6f1e7;
+  --surface: #fbf7ef;
+  --surface-sunken: #f0e6d3;
+  --fg: #1d1a16;
+  --muted: #6b6358;
+  --accent: #9a3412;
+  --accent-strong: #7c2d12;
+  --accent-fg: #ffffff;
+  --accent-tint: #f0e6d3;
+  --border: #d9d0bf;
+  --border-strong: #8a7f6e;
+  --outline: #d9d0bf;
+  --shadow-ink: transparent;
+  --chunk-w: 1px;
+  --chunk-shadow: none;
+  --chunk-shadow-hover: none;
+  --radius: 2px;
+  --radius-sm: 2px;
+  --radius-card: 2px;
+  --p1: #efe4cf;
+  --p2: #efe4cf;
+  --p3: #ebdfc8;
+  --p4: #efe4cf;
+  --p5: #efe4cf;
+}
+
+.editorial-page h1,
+.editorial-page h2,
+.editorial-page h3,
+.editorial-page .font-serif-heading {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.editorial-page .kicker {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+:root:has(.editorial-page) body {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root:has(.editorial-page) .pill-nav {
+  border-color: transparent;
+  box-shadow: none;
+  border-radius: 2px;
+}
+
+:root:has(.editorial-page) .btn-chunk,
+:root:has(.editorial-page) .pill-nav {
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+:root:has(.editorial-page) .btn-chunk:hover,
+:root:has(.editorial-page) .btn-chunk:active {
+  box-shadow: none;
+  transform: none;
+}
+
+@media print {
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --fg: #000000;
+    --muted: #333333;
+    --border: #bbbbbb;
+  }
+  body {
+    font-size: 10.5pt;
+    line-height: 1.45;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print,
+  .scroll-progress,
+  header,
+  footer,
+  nav,
+  .marquee-container {
+    display: none !important;
+  }
+  a,
+  .link-inline {
+    text-decoration: none;
+    color: inherit;
+  }
+  .container-page {
+    max-width: none;
+    padding-inline: 0;
+  }
+}
+
+/* Suppress native mobile browser play button overlay & media controls */
+video::-webkit-media-controls {
+  display: none !important;
+}
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+video::-webkit-media-controls-play-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+

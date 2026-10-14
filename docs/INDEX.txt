@@ -1,0 +1,36 @@
+PROJECT SHOWCASE
+================
+One folder per project: numbered screenshots of the real running app plus a
+README.txt that explains what it is and what each screenshot shows.
+(REA is a collection of reference sites and is not included.)
+
+lykan            Marketing site for an AI engineering studio, with a scope
+                 estimator and a client-portal telemetry demo. Next.js.
+ufc_fight_intel  UFC fight cards, win probabilities with the factors behind
+                 them, rankings, style duels and a data assistant. Next.js,
+                 MongoDB, Python model.
+cityops          NYC 311 operations dashboard on 181k requests, with an API,
+                 map, closure analysis and an honest risk-model verdict.
+                 Next.js, NestJS, PostgreSQL.
+dawgsss          Ringside: a watch-party app with live rooms, spoiler-safe
+                 chat, pick'ems and household presence. React, Socket.IO.
+launchhelp       Interactive lab that turns an idea into a buildable plan
+                 across thirteen phases. React + Vite.
+mlforge          75 interactive machine-learning labs implemented from
+                 scratch in the browser. React + Vite + TypeScript.
+systemcraft      SystemForge: system-design simulator with 40 labs, an
+                 architecture canvas and a code playground. Next.js.
+query_doctor     Finds why a SQL or MongoDB query is slow and proves the fix
+                 with a benchmark. Next.js, FastAPI, PostgreSQL, MongoDB.
+mlfailurelab     Upload a model's predictions and find where it fails.
+                 Next.js, FastAPI, PostgreSQL, MinIO.
+mmsar            HomeSense: multimodal smart-home activity recognition with a
+                 full product around it (about fifteen services).
+f1_race_intel    F1 podium predictions, telemetry duels and a data
+                 assistant. Next.js, FastAPI, PostgreSQL.
+portfolio        Personal portfolio with case studies and a sensor-playback
+                 demo. Next.js, GSAP.
+
+Screenshots are 1440 x 900 browser captures; long pages are captured as a
+full page when they are under about 2,000 px tall, otherwise as the first
+screen.

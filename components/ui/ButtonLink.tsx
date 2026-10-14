@@ -18,9 +18,11 @@ interface ButtonLinkProps {
   children: ReactNode;
   variant?: Variant;
   className?: string;
+  /** A file the visitor should save rather than open: a plain anchor with the download attribute. */
   download?: boolean;
 }
 
+/** Internal links use next/link; mailto and external links use a plain anchor. */
 export function ButtonLink({ href, children, variant = "primary", className = "", download = false }: ButtonLinkProps) {
   const classes = `${base} ${variants[variant]} ${className}`;
   const isExternal = /^https?:\/\//.test(href);

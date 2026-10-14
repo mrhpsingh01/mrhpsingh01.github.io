@@ -2,43 +2,114 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { List, X } from "@phosphor-icons/react";
+import { Container } from "@/components/container";
 import { navItems } from "@/content/site";
 import { mailto, profile } from "@/content/profile";
-import { ButtonLink } from "@/components/ui/ButtonLink";
+import { cn } from "@/lib/utils";
 
 function isActive(pathname: string, href: string, also: string[] = []) {
+  if (href === "/") return pathname === "/";
   return [href, ...also].some((route) => pathname === route || pathname.startsWith(`${route}/`));
 }
 
 export function SiteHeader() {
   const pathname = usePathname();
-  // Remember which path the menu was opened on: navigating closes it without an effect.
-  const [openFor, setOpenFor] = useState<string | null>(null);
-  const open = openFor === pathname;
+  const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const linkBase =
-    "pill-nav rounded-full border-2 border-transparent px-4 py-2 text-[0.9375rem] font-semibold transition-colors duration-150";
+  // Close mobile menu on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   return (
     <header
-      className="no-print sticky top-0 z-40 border-b-[2.5px] border-ink bg-bg"
+      className="no-print sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md transition-colors"
       onKeyDown={(event) => {
         if (event.key === "Escape" && open) {
-          setOpenFor(null);
+          setOpen(false);
           buttonRef.current?.focus();
         }
       }}
     >
-      <div className="container-page flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="text-[1.05rem] font-extrabold tracking-tight text-fg" aria-label={`${profile.name}, home`}>
-          {profile.name}
+      <Container className="flex h-16 items-center justify-between gap-4">
+        {/* Brand / Logo */}
+        <Link
+          href="/"
+          className="group flex items-center select-none"
+          aria-label={`${profile.name}, home`}
+        >
+          <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-foreground whitespace-nowrap transition-colors group-hover:text-accent">
+            {profile.name}
+          </span>
         </Link>
 
-        <div className="flex items-center gap-2">
-          <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
+        {/* Desktop Nav Items inside Glass Pill Bar */}
+        <nav
+          aria-label="Primary"
+          className="hidden md:flex items-center gap-1 rounded-full border border-border/80 bg-muted/30 px-1.5 py-1 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+        >
+          {navItems.map((item) => {
+            const active = isActive(pathname, item.href, item.also);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "rounded-full px-3.5 py-1.5 text-xs sm:text-sm font-medium transition-all duration-150 select-none",
+                  active
+                    ? "bg-white dark:bg-card text-foreground font-semibold shadow-xs border border-border/80"
+                    : "text-secondary hover:text-foreground hover:bg-muted/60",
+                )}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Right Action: Let's talk CTA */}
+        <div className="flex items-center gap-2.5">
+          <a
+            href={mailto}
+            className="group hidden sm:inline-flex flex-col items-center justify-center text-center px-3 py-1 select-none transition-all duration-200 ease-out hover:scale-110 active:scale-95 cursor-pointer origin-center"
+            aria-label="Let's talk"
+          >
+            <span className="text-sm sm:text-base font-bold leading-none tracking-tight text-foreground transition-colors duration-200 group-hover:text-accent">
+              Let&apos;s
+            </span>
+            <span className="mt-0.5 text-sm sm:text-base font-bold leading-none tracking-tight text-foreground transition-colors duration-200 group-hover:text-accent">
+              talk
+            </span>
+            <span className="mt-1 h-[2px] w-0 rounded-full bg-accent transition-all duration-200 ease-out group-hover:w-full" />
+          </a>
+
+          {/* Mobile Hamburger Button */}
+          <button
+            ref={buttonRef}
+            type="button"
+            className="flex size-10 items-center justify-center rounded-xl border border-border/80 bg-card/80 text-foreground transition-colors hover:bg-muted md:hidden"
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={() => setOpen((prev) => !prev)}
+          >
+            {open ? <X size={20} weight="bold" /> : <List size={20} weight="bold" />}
+          </button>
+        </div>
+      </Container>
+
+      {/* Mobile Menu Dropdown */}
+      {open && (
+        <nav
+          id="mobile-nav"
+          aria-label="Primary mobile"
+          className="border-b border-border/80 bg-background/95 backdrop-blur-xl md:hidden shadow-lg animate-in fade-in-0 slide-in-from-top-2 duration-200"
+        >
+          <Container className="flex flex-col gap-1.5 py-4">
             {navItems.map((item) => {
               const active = isActive(pathname, item.href, item.also);
               return (
@@ -46,63 +117,30 @@ export function SiteHeader() {
                   key={item.href}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  className={`${linkBase} ${
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "flex min-h-11 items-center justify-between rounded-xl px-4 text-sm font-medium transition-all",
                     active
-                      ? "border-ink bg-p3 text-fg"
-                      : "text-muted hover:border-ink hover:bg-surface hover:text-fg"
-                  }`}
+                      ? "bg-accent/10 text-accent font-semibold border border-accent/20"
+                      : "text-foreground hover:bg-muted/60",
+                  )}
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  {active && <span className="size-1.5 rounded-full bg-accent" />}
                 </Link>
               );
             })}
-            <ButtonLink href={mailto} variant="secondary" className="ml-2 min-h-10 py-2">
-              Email me
-            </ButtonLink>
-          </nav>
-
-          <button
-            ref={buttonRef}
-            type="button"
-            className="inline-flex size-11 items-center justify-center rounded-full border-2 border-ink bg-surface text-fg transition-colors hover:bg-p4 lg:hidden"
-            aria-expanded={open}
-            aria-controls="mobile-nav"
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpenFor(open ? null : pathname)}
-          >
-            {open ? <X aria-hidden="true" size={20} /> : <Menu aria-hidden="true" size={20} />}
-          </button>
-        </div>
-      </div>
-
-      {open ? (
-        <nav id="mobile-nav" aria-label="Primary mobile" className="border-t border-line bg-bg lg:hidden">
-          <ul className="container-page flex flex-col gap-1 py-4">
-            {navItems.map((item) => {
-              const active = isActive(pathname, item.href, item.also);
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    onClick={() => setOpenFor(null)}
-                    className={`${linkBase} flex min-h-11 items-center ${
-                      active ? "border-ink bg-p3 text-fg" : "text-fg hover:bg-sunken"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
-            <li className="pt-2">
-              <ButtonLink href={mailto} className="w-full">
-                Email me
-              </ButtonLink>
-            </li>
-          </ul>
+            <div className="pt-2">
+              <a
+                href={mailto}
+                className="flex min-h-11 w-full items-center justify-center rounded-xl bg-accent px-4 text-sm font-semibold text-accent-fg transition-all duration-200 hover:bg-accent-strong hover:shadow-md active:scale-95"
+              >
+                <span>Let&apos;s talk</span>
+              </a>
+            </div>
+          </Container>
         </nav>
-      ) : null}
+      )}
     </header>
   );
 }

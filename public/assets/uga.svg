@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" width="100%" height="100%">
+  <rect width="48" height="48" rx="10" fill="#BA0C2F"/>
+  <!-- Stylized G / Georgia Arch emblem -->
+  <path d="M24 8C15.163 8 8 15.163 8 24s7.163 16 16 16c4.957 0 9.387-2.257 12.316-5.807l-4.526-3.791C29.98 32.748 27.16 34.2 24 34.2c-5.633 0-10.2-4.567-10.2-10.2S18.367 13.8 24 13.8c3.551 0 6.671 1.821 8.49 4.6l4.82-3.4C34.48 10.6 29.56 8 24 8z" fill="#FFFFFF"/>
+  <path d="M26 21.5h14v5H26z" fill="#FFFFFF"/>
+</svg>
