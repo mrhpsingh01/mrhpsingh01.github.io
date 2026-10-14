@@ -152,7 +152,7 @@ export function Hero() {
         {/* Mobile Action Buttons (Palakonweb) */}
         <div className="flex md:hidden w-full gap-2.5 mt-12 sm:mt-14 mb-4">
           <Link
-            href="#projects"
+            href="/work"
             className="flex-1 flex items-center justify-center gap-1.5 h-11 bg-white text-black border border-black/10 rounded-[18px] font-medium text-[13px] whitespace-nowrap shadow-sm"
           >
             <span>View Projects</span>
