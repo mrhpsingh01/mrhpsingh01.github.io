@@ -133,7 +133,7 @@ export function Hero() {
           {/* Desktop Action Buttons (Palakonweb) */}
           <div className="hidden md:flex absolute -bottom-12 md:-bottom-14 right-0 flex-wrap justify-end gap-3 z-30">
             <Link
-              href="#projects"
+              href="/work"
               className="group flex items-center gap-2 px-5 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-full shadow-sm font-medium text-xs md:text-sm hover:shadow-md transition-all duration-150"
             >
               <span>View Projects</span>
