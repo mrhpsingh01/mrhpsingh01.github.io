@@ -3,7 +3,7 @@ export const siteConfig = {
   title: "Harmanpreet Singh | Software Engineer & Applied ML",
   description:
     "Portfolio of Harmanpreet Singh. Software engineer specializing in production full-stack development, applied machine learning pipelines, and distributed backend systems.",
-  url: "https://www.harmanpreetsingh.dev",
+  url: "https://harmanpreetsingh.me",
   githubUsername: "mrhpsingh01",
   twitterHandle: "@mrhpsingh01",
   ogImage: "/assets/og-image.jpg",

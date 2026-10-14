@@ -23,7 +23,7 @@ export const achievements: Achievement[] = [
       "Configured and managed production Kubernetes clusters in Google Cloud.",
       "Set up containerized deployments, autoscaling, ingress controllers, and persistent storage.",
     ],
-    image: "/assets/certificates/google-manage-kubernetes.webp",
+    image: "/images/certificates/google-manage-kubernetes.webp",
     featured: true,
   },
   {
@@ -37,7 +37,7 @@ export const achievements: Achievement[] = [
       "Created, configured, and tuned high-availability PostgreSQL instances on Google Cloud SQL.",
       "Managed connection pooling, automatic failover, backups, and database indexing strategies.",
     ],
-    image: "/assets/certificates/google-cloud-sql-postgresql.webp",
+    image: "/images/certificates/google-cloud-sql-postgresql.webp",
     featured: true,
   },
   {
@@ -51,7 +51,7 @@ export const achievements: Achievement[] = [
       "Practical mastery in deploying LLMs, vector search, RAG pipelines, and model evaluation.",
       "Covered prompt engineering, embeddings, and API integration for production applications.",
     ],
-    image: "/assets/certificates/datacamp-ai-engineer-associate.webp",
+    image: "/images/certificates/datacamp-ai-engineer-associate.webp",
     featured: true,
   },
   {
@@ -64,7 +64,7 @@ export const achievements: Achievement[] = [
     details: [
       "Accredited in fundamental generative AI architectures, fine-tuning methodologies, and enterprise deployment.",
     ],
-    image: "/assets/certificates/databricks-generative-ai-fundamentals.webp",
+    image: "/images/certificates/databricks-generative-ai-fundamentals.webp",
     featured: true,
   },
   {
@@ -77,7 +77,7 @@ export const achievements: Achievement[] = [
     details: [
       "Verified on Credly: AI architectures, supervised and unsupervised learning, and ethics in AI systems.",
     ],
-    image: "/assets/certificates/ibm-artificial-intelligence-fundamentals.webp",
+    image: "/images/certificates/ibm-artificial-intelligence-fundamentals.webp",
     featured: true,
   },
   {
@@ -90,7 +90,7 @@ export const achievements: Achievement[] = [
     details: [
       "Building robust AI agents, tool-calling pipelines, structured workflows, and prompt engineering.",
     ],
-    image: "/assets/certificates/claude-ai-fluency-for-builders.webp",
+    image: "/images/certificates/claude-ai-fluency-for-builders.webp",
     featured: true,
   },
 ];

@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { lastPlayedTrack } from "@/config/spotify";
 
-export const dynamic = "force-dynamic";
-
+export const dynamic = "force-static";
 type SpotifyImage = {
   url: string;
   height: number | null;

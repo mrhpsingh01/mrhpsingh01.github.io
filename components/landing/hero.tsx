@@ -79,7 +79,7 @@ export function Hero() {
               <video
                 ref={videoRef}
                 src="/assets/uga_Arch_snow_1080.mp4"
-                poster="/assets/arch.png"
+                poster="/assets/arch.webp"
                 autoPlay
                 loop
                 muted
